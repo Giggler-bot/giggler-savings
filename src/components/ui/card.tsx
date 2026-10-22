@@ -1,15 +1,15 @@
+
 import type { ReactNode } from "react";
 import { View } from "react-native";
 
-type Cardprops = {
+type CardProps = {
   children: ReactNode;
-  className: string;
+  className?: string;
 };
 
-export function Card({ children, className = "" }: Cardprops) {
-  return (
-    <View className={`rounded-card border border-border bg-white p-4`}>
-      {children}
-    </View>
-  );
+export function Card({
+  children,
+  className = "rounded-card border border-border bg-white p-4",
+}: CardProps) {
+  return <View className={className}>{children}</View>;
 }

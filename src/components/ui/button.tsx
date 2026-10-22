@@ -1,12 +1,14 @@
+
 import { Pressable, Text } from "react-native";
 
 type ButtonVariant = "primary" | "secondary" | "accent";
 
-type Buttonprops = {
+type ButtonProps = {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
+  className?: string;
 };
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -26,16 +28,22 @@ export function Button({
   onPress,
   variant = "primary",
   disabled = false,
-}: Buttonprops) {
+  className = "",
+}: ButtonProps) {
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      className={`items-center justify-center rounded-xl px-6 py-4 ${variantStyles[variant]}
-      ${disabled ? "opacity-50" : "opacity-100"}
-      `}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      className={`items-center justify-center rounded-xl px-6 py-4 ${
+        variantStyles[variant]
+      } ${disabled ? "opacity-50" : "opacity-100"} ${className}`}
     >
-      <Text className={`text-base font-bold ${variantTextStyles[variant]}`}>
+      <Text
+        className={`text-base font-bold ${variantTextStyles[variant]}`}
+        style={{ fontFamily: "Manrope-Bold" }}
+      >
         {title}
       </Text>
     </Pressable>

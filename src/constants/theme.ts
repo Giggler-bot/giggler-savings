@@ -14,8 +14,8 @@ export const Colors = {
   white: '#FFFFFF',
   sage: '#DDE9E0',
   ink: '#24332B',
-  muted: '#758078',
-  border: '#E4E8E1',
+  muted: '#64746A',
+  border: '#E7E9E2',
   success: '#26734D',
   warning: '#A96516',
   error: '#B42318',
@@ -38,6 +38,9 @@ export const Radius = {
   xl: 20,
   card: 24,
   pill: 999,
+  balance: 22,
+  goal: 18,
+  goalCard: 16,
 } as const;
 
 export const Typography = {

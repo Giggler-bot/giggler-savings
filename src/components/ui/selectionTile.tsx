@@ -19,7 +19,7 @@ export function SelectionTile({
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      className={`flex-1 items-center justify-center rounded-xl border px-2 py-4 ${
+      className={` w-full items-center justify-center rounded-xl border px-2 py-4 ${
         selected ? "border-forest bg-sage" : "border-border bg-white"
       }`}
     >

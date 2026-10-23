@@ -7,6 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
+import { router } from "expo-router";
+
 type GoalStatus = "in-progress" | "completed";
 type GoalFilter = "all" | GoalStatus;
 
@@ -182,9 +184,7 @@ export default function GoalsScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Create a new goal"
-            onPress={() => {
-              // Create Goal navigation will be added later.
-            }}
+            onPress={() => router.push('/create-goal')}
             className="h-9 w-9 items-center justify-center"
           >
             <Ionicons

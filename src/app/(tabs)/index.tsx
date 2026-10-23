@@ -13,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 import YourGoals from "@/components/home/your-goals";
 import RecentActivity from "@/components/home/recent-activity";
 
+import { router } from "expo-router";
+
 
 export default function HomeScreen() {
   const [balanceVisible, setBalanceVisible] = useState(true);
@@ -105,12 +107,7 @@ export default function HomeScreen() {
           <View className="mt-5 flex-row items-center justify-between">
             <Pressable
               accessibilityRole="button"
-              onPress={() =>
-                Alert.alert(
-                  "Create a goal",
-                  "We'll build the goal creation screen next."
-                )
-              }
+              onPress={() => router.push('/create-goal')}
               className="flex-row items-center justify-center rounded-[11px] bg-lime px-4 py-2"
             >
               <Ionicons name="add" size={17} color="#153D2E" />

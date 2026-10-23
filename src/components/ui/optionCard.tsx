@@ -8,6 +8,7 @@ type OptionCardProps = {
   icon: keyof typeof Ionicons.glyphMap;
   selected: boolean;
   onPress: () => void;
+  variant?: "forest" | "sage";
 };
 
 export function OptionCard({
@@ -16,47 +17,82 @@ export function OptionCard({
   icon,
   selected,
   onPress,
+  variant = "sage",
 }: OptionCardProps) {
+  const isForest = variant === "forest";
+
+  const backgroundColor = isForest ? "#153D2E" : "#DDE9E0";
+  const titleColor = isForest ? "#FFFFFF" : "#153D2E";
+  const descriptionColor = isForest ? "#DDE9E0" : "#52675A";
+  const iconBackground = isForest ? "#285441" : "#FFFFFF";
+  const iconColor = isForest ? "#C4F06A" : "#153D2E";
+
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      className={`flex-row items-center rounded-2xl border p-4 ${
-        selected
-          ? "border-forest bg-sage"
-          : "border-border bg-white"
-      }`}
+      style={{
+       width: "100%",
+        minHeight: 170,
+        padding: 14,
+        borderRadius: 20,
+        backgroundColor,
+        borderWidth: selected ? 2 : 1,
+        borderColor: selected
+          ? isForest
+            ? "#C4F06A"
+            : "#153D2E"
+          : isForest
+            ? "#153D2E"
+            : "#DDE9E0",
+      }}
     >
-      <View className="mr-3 h-11 w-11 items-center justify-center rounded-xl bg-[#E9F0E3]">
+      {/* Icon and selection indicator */}
+      <View className="mb-3 flex-row items-start justify-between">
+        <View
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 14,
+            backgroundColor: iconBackground,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Ionicons name={icon} size={23} color={iconColor} />
+        </View>
+
         <Ionicons
-          name={icon}
-          size={23}
-          color="#153D2E"
+          name={selected ? "checkmark-circle" : "ellipse-outline"}
+          size={22}
+          color={selected ? (isForest ? "#C4F06A" : "#153D2E") : descriptionColor}
         />
       </View>
 
-      <View className="flex-1">
-        <Text
-          className="text-[14px] text-ink"
-          style={{ fontFamily: "Manrope-Bold" }}
-        >
-          {title}
-        </Text>
+      {/* Card content */}
+      <Text
+        style={{
+          fontFamily: "Manrope-Bold",
+          fontSize: 14,
+          lineHeight: 20,
+          color: titleColor,
+        }}
+      >
+        {title}
+      </Text>
 
-        <Text
-          className="mt-1 text-[12px] text-muted"
-          style={{ fontFamily: "Manrope-Regular" }}
-        >
-          {description}
-        </Text>
-      </View>
-
-      <Ionicons
-        name={selected ? "checkmark-circle" : "ellipse-outline"}
-        size={22}
-        color={selected ? "#153D2E" : "#64746A"}
-      />
+      <Text
+        style={{
+          marginTop: 6,
+          fontFamily: "Manrope-Regular",
+          fontSize: 11,
+          lineHeight: 16,
+          color: descriptionColor,
+        }}
+      >
+        {description}
+      </Text>
     </Pressable>
   );
 }

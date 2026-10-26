@@ -3,26 +3,14 @@ import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 import { Card } from "@/components/ui/card";
+import { GoalCard, type Goal } from "@/components/ui/goalCard";
 import { Button } from "@/components/ui/button";
-
-import { router } from "expo-router";
 
 type GoalStatus = "in-progress" | "completed";
 type GoalFilter = "all" | GoalStatus;
-
-type Goal = {
-  id: string;
-  name: string;
-  type: "Target savings" | "Flexible savings";
-  saved: number;
-  target: number;
-  progress: number;
-  status: GoalStatus;
-  detail: string;
-  icon: keyof typeof Ionicons.glyphMap;
-};
 
 const goals: Goal[] = [
   {
@@ -49,86 +37,6 @@ const goals: Goal[] = [
   },
 ];
 
-const formatMoney = (amount: number) =>
-  `GH₵${amount.toLocaleString("en-GH")}`;
-
-function GoalCard({ goal }: { goal: Goal }) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${goal.name}, ${goal.progress}% complete`}
-      onPress={() => {
-        // Goal details navigation will be added later.
-      }}
-      className="mb-3"
-    >
-      <Card className="h-[166px] rounded-[16px] bg-white p-3.5">
-        <View className="flex-row items-center">
-          <View className="h-[45px] w-[45px] items-center justify-center rounded-xl bg-[#E9F0E3]">
-            <Ionicons
-              name={goal.icon}
-              size={23}
-              color="#153D2E"
-            />
-          </View>
-
-          <View className="ml-3 flex-1">
-            <Text
-              className="text-[15px] text-ink"
-              style={{ fontFamily: "Manrope-Bold" }}
-            >
-              {goal.name}
-            </Text>
-
-            <Text
-              className="mt-1 text-[11px] text-muted"
-              style={{ fontFamily: "Manrope-Regular" }}
-            >
-              {goal.type}
-            </Text>
-          </View>
-
-          <Ionicons
-            name="chevron-forward"
-            size={17}
-            color="#64746A"
-          />
-        </View>
-
-        <Text
-          className="mt-3.5 text-[12px] text-ink"
-          style={{ fontFamily: "Manrope-Medium" }}
-        >
-          {formatMoney(goal.saved)} of {formatMoney(goal.target)}
-        </Text>
-
-        <View className="mt-3 h-2 overflow-hidden rounded-full bg-sage">
-          <View
-            className="h-full rounded-full bg-forest"
-            style={{ width: `${goal.progress}%` }}
-          />
-        </View>
-
-        <View className="mt-2 flex-row items-center justify-between">
-          <Text
-            className="text-[11px] text-forest"
-            style={{ fontFamily: "Manrope-Bold" }}
-          >
-            {goal.progress}% complete
-          </Text>
-
-          <Text
-            className="text-[10px] text-muted"
-            style={{ fontFamily: "Manrope-Regular" }}
-          >
-            {goal.detail}
-          </Text>
-        </View>
-      </Card>
-    </Pressable>
-  );
-}
-
 export default function GoalsScreen() {
   const [activeFilter, setActiveFilter] = useState<GoalFilter>("all");
 
@@ -146,9 +54,7 @@ export default function GoalsScreen() {
   const sectionTitle =
     activeFilter === "completed"
       ? "COMPLETED"
-      : activeFilter === "in-progress"
-        ? "IN PROGRESS"
-        : "IN PROGRESS";
+      : "IN PROGRESS";
 
   return (
     <SafeAreaView className="flex-1 bg-ivory" edges={["top"]}>
@@ -167,11 +73,7 @@ export default function GoalsScreen() {
             }}
             className="mr-2 h-9 w-9 items-center justify-center"
           >
-            <Ionicons
-              name="arrow-back"
-              size={26}
-              color="#153D2E"
-            />
+            <Ionicons name="arrow-back" size={26} color="#153D2E" />
           </Pressable>
 
           <Text
@@ -184,14 +86,10 @@ export default function GoalsScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Create a new goal"
-            onPress={() => router.push('/create-goal')}
+            onPress={() => router.push("/create-goal")}
             className="h-9 w-9 items-center justify-center"
           >
-            <Ionicons
-              name="add"
-              size={27}
-              color="#153D2E"
-            />
+            <Ionicons name="add" size={27} color="#153D2E" />
           </Pressable>
         </View>
 
@@ -275,15 +173,17 @@ export default function GoalsScreen() {
 
         {visibleGoals.length > 0 ? (
           visibleGoals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
+            <GoalCard
+              key={goal.id}
+              goal={goal}
+              onPress={() => {
+                // Goal details navigation will be added later.
+              }}
+            />
           ))
         ) : (
           <Card className="items-center rounded-[16px] bg-white px-5 py-8">
-            <Ionicons
-              name="flag-outline"
-              size={30}
-              color="#64746A"
-            />
+            <Ionicons name="flag-outline" size={30} color="#64746A" />
 
             <Text
               className="mt-3 text-[14px] text-ink"

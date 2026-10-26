@@ -1,19 +1,54 @@
-import { useState } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+
+import { useCallback, useRef, useState } from "react";
+import {
+  Alert,
+  Animated,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
 
 import YourGoals from "@/components/home/your-goals";
 import RecentActivity from "@/components/home/recent-activity";
-
 import { GradientCard } from "@/components/ui/gradientCard";
-
-import { router } from "expo-router";
 
 export default function HomeScreen() {
   const [balanceVisible, setBalanceVisible] = useState(true);
 
+  const cardOpacity = useRef(new Animated.Value(0)).current;
+  const cardTranslateY = useRef(new Animated.Value(40)).current;
+
   const totalSavings = "GH₵4,860.00";
+
+  useFocusEffect(
+    useCallback(() => {
+      cardOpacity.setValue(0);
+      cardTranslateY.setValue(40);
+
+      const animation = Animated.parallel([
+        Animated.timing(cardOpacity, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(cardTranslateY, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ]);
+
+      animation.start();
+
+      return () => {
+        animation.stop();
+      };
+    }, [cardOpacity, cardTranslateY]),
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-ivory">
@@ -57,78 +92,87 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* Total savings card */}
-        <GradientCard
-          className="rounded-balance"
-          contentClassName="px-5 pb-5 pt-5"
-          colors={["#153D2E", "#245A40", "#1B4935"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+        {/* Total savings card with entrance animation */}
+        <Animated.View
+          style={{
+            opacity: cardOpacity,
+            transform: [{ translateY: cardTranslateY }],
+          }}
         >
-          <View className="flex-row items-center justify-between">
-            <Text
-              className="text-[10px] uppercase tracking-[1px] text-white"
-              style={{ fontFamily: "Manrope-Bold" }}
-            >
-              TOTAL SAVINGS
-            </Text>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                balanceVisible ? "Hide savings balance" : "Show savings balance"
-              }
-              onPress={() => setBalanceVisible((visible) => !visible)}
-              hitSlop={10}
-              className="h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: "rgba(255,255,255,0.12)" }}
-            >
-              <Ionicons
-                name={balanceVisible ? "eye-outline" : "eye-off-outline"}
-                size={21}
-                color="#FFFFFF"
-              />
-            </Pressable>
-          </View>
-
-          <Text
-            className="mt-1 text-[30px] text-white"
-            style={{ fontFamily: "Manrope-ExtraBold" }}
+          <GradientCard
+            className="rounded-balance"
+            contentClassName="px-5 pb-5 pt-5"
+            colors={["#153D2E", "#245A40", "#1B4935"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
-            {balanceVisible ? totalSavings : "GH₵••••••"}
-          </Text>
-
-          <Text
-            className="mt-1 text-[12px] text-white"
-            style={{ fontFamily: "Manrope-Regular", opacity: 0.85 }}
-          >
-            Across all your savings goals
-          </Text>
-
-          <View className="mt-5 flex-row items-center justify-between">
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.push("/create-goal")}
-              className="flex-row items-center justify-center rounded-[11px] bg-lime px-4 py-2"
-            >
-              <Ionicons name="add" size={17} color="#153D2E" />
-
+            <View className="flex-row items-center justify-between">
               <Text
-                className="ml-1 text-[12px] text-forest"
+                className="text-[10px] uppercase tracking-[1px] text-white"
                 style={{ fontFamily: "Manrope-Bold" }}
               >
-                Create a goal
+                TOTAL SAVINGS
               </Text>
-            </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={
+                  balanceVisible
+                    ? "Hide savings balance"
+                    : "Show savings balance"
+                }
+                onPress={() => setBalanceVisible((visible) => !visible)}
+                hitSlop={10}
+                className="h-9 w-9 items-center justify-center rounded-full"
+                style={{ backgroundColor: "rgba(255,255,255,0.12)" }}
+              >
+                <Ionicons
+                  name={balanceVisible ? "eye-outline" : "eye-off-outline"}
+                  size={21}
+                  color="#FFFFFF"
+                />
+              </Pressable>
+            </View>
 
             <Text
-              className="text-[11px] text-white"
-              style={{ fontFamily: "Manrope-Medium", opacity: 0.9 }}
+              className="mt-1 text-[30px] text-white"
+              style={{ fontFamily: "Manrope-ExtraBold" }}
             >
-              ✦ Every cedi counts
+              {balanceVisible ? totalSavings : "GH₵••••••"}
             </Text>
-          </View>
-        </GradientCard>
+
+            <Text
+              className="mt-1 text-[12px] text-white"
+              style={{ fontFamily: "Manrope-Regular", opacity: 0.85 }}
+            >
+              Across all your savings goals
+            </Text>
+
+            <View className="mt-5 flex-row items-center justify-between">
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push("/create-goal")}
+                className="flex-row items-center justify-center rounded-[11px] bg-lime px-4 py-2"
+              >
+                <Ionicons name="add" size={17} color="#153D2E" />
+
+                <Text
+                  className="ml-1 text-[12px] text-forest"
+                  style={{ fontFamily: "Manrope-Bold" }}
+                >
+                  Create a goal
+                </Text>
+              </Pressable>
+
+              <Text
+                className="text-[11px] text-white"
+                style={{ fontFamily: "Manrope-Medium", opacity: 0.9 }}
+              >
+                ✦ Every cedi counts
+              </Text>
+            </View>
+          </GradientCard>
+        </Animated.View>
 
         <YourGoals />
         <RecentActivity />

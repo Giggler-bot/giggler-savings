@@ -30,12 +30,6 @@ const goalPurposes: {
   { label: "Other", value: "other", icon: "apps-outline" },
 ];
 
-const formatDate = (date: Date) =>
-  date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
 
 export default function CreateGoalsScreen() {
   const [selectedPurpose, setSelectedPurpose] = useState<GoalPurpose | null>(

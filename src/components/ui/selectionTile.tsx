@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+
+import { useRef } from "react";
 import { Animated, Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -16,17 +17,6 @@ export function SelectionTile({
   onPress,
 }: SelectionTileProps) {
   const scale = useRef(new Animated.Value(1)).current;
-  const selectionProgress = useRef(
-    new Animated.Value(selected ? 1 : 0),
-  ).current;
-
-  useEffect(() => {
-    Animated.timing(selectionProgress, {
-      toValue: selected ? 1 : 0,
-      duration: 180,
-      useNativeDriver: false,
-    }).start();
-  }, [selected, selectionProgress]);
 
   const animateScale = (toValue: number) => {
     Animated.spring(scale, {
@@ -37,19 +27,10 @@ export function SelectionTile({
     }).start();
   };
 
-  const animatedBorderColor = selectionProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["#E7E9E2", "#153D2E"],
-  });
-
   return (
     <Animated.View
       style={{
         transform: [{ scale }],
-        borderRadius: 12,
-        borderColor: animatedBorderColor,
-        borderWidth: selected ? 1.5 : 1,
-        backgroundColor: selected ? "#DDE9E0" : "#FFFFFF",
       }}
     >
       <Pressable
@@ -58,10 +39,11 @@ export function SelectionTile({
         onPress={onPress}
         onPressIn={() => animateScale(0.94)}
         onPressOut={() => animateScale(1)}
-        className={`w-full items-center justify-center rounded-xl px-2 py-4 ${
-          selected ? "bg-sage" : "bg-white"
+        className={`w-full items-center justify-center rounded-xl border px-2 py-4 ${
+          selected
+            ? "border-forest bg-sage"
+            : "border-border bg-white"
         }`}
-        style={{ borderWidth: 0 }}
       >
         <View className="mb-2 h-10 w-10 items-center justify-center rounded-full bg-sage">
           <Ionicons name={icon} size={22} color="#153D2E" />

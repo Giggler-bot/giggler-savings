@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Animated, Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 type SelectionTileProps = {
@@ -14,29 +15,69 @@ export function SelectionTile({
   selected,
   onPress,
 }: SelectionTileProps) {
-  return (
-    <Pressable
-      accessibilityRole="radio"
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      className={` w-full items-center justify-center rounded-xl border px-2 py-4 ${
-        selected ? "border-forest bg-sage" : "border-border bg-white"
-      }`}
-    >
-      <View className="mb-2 h-10 w-10 items-center justify-center rounded-full bg-[#E9F0E3]">
-        <Ionicons name={icon} size={22} color="#153D2E" />
-      </View>
+  const scale = useRef(new Animated.Value(1)).current;
+  const selectionProgress = useRef(
+    new Animated.Value(selected ? 1 : 0),
+  ).current;
 
-      <Text
-        className={`text-center text-[12px] ${
-          selected ? "text-forest" : "text-ink"
+  useEffect(() => {
+    Animated.timing(selectionProgress, {
+      toValue: selected ? 1 : 0,
+      duration: 180,
+      useNativeDriver: false,
+    }).start();
+  }, [selected, selectionProgress]);
+
+  const animateScale = (toValue: number) => {
+    Animated.spring(scale, {
+      toValue,
+      useNativeDriver: true,
+      speed: 40,
+      bounciness: 0,
+    }).start();
+  };
+
+  const animatedBorderColor = selectionProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["#E7E9E2", "#153D2E"],
+  });
+
+  return (
+    <Animated.View
+      style={{
+        transform: [{ scale }],
+        borderRadius: 12,
+        borderColor: animatedBorderColor,
+        borderWidth: selected ? 1.5 : 1,
+        backgroundColor: selected ? "#DDE9E0" : "#FFFFFF",
+      }}
+    >
+      <Pressable
+        accessibilityRole="radio"
+        accessibilityState={{ selected }}
+        onPress={onPress}
+        onPressIn={() => animateScale(0.94)}
+        onPressOut={() => animateScale(1)}
+        className={`w-full items-center justify-center rounded-xl px-2 py-4 ${
+          selected ? "bg-sage" : "bg-white"
         }`}
-        style={{
-          fontFamily: selected ? "Manrope-SemiBold" : "Manrope-Medium",
-        }}
+        style={{ borderWidth: 0 }}
       >
-        {title}
-      </Text>
-    </Pressable>
+        <View className="mb-2 h-10 w-10 items-center justify-center rounded-full bg-sage">
+          <Ionicons name={icon} size={22} color="#153D2E" />
+        </View>
+
+        <Text
+          className={`text-center text-[12px] ${
+            selected ? "text-forest" : "text-ink"
+          }`}
+          style={{
+            fontFamily: selected ? "Manrope-SemiBold" : "Manrope-Medium",
+          }}
+        >
+          {title}
+        </Text>
+      </Pressable>
+    </Animated.View>
   );
 }

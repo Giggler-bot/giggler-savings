@@ -1,20 +1,14 @@
-
 import { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 import YourGoals from "@/components/home/your-goals";
 import RecentActivity from "@/components/home/recent-activity";
 
-import { router } from "expo-router";
+import { GradientCard } from "@/components/ui/gradientCard";
 
+import { router } from "expo-router";
 
 export default function HomeScreen() {
   const [balanceVisible, setBalanceVisible] = useState(true);
@@ -64,7 +58,13 @@ export default function HomeScreen() {
         </View>
 
         {/* Total savings card */}
-        <View className="rounded-balance bg-forest px-5 pb-5 pt-5">
+        <GradientCard
+          className="rounded-balance"
+          contentClassName="px-5 pb-5 pt-5"
+          colors={["#153D2E", "#245A40", "#1B4935"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
           <View className="flex-row items-center justify-between">
             <Text
               className="text-[10px] uppercase tracking-[1px] text-white"
@@ -81,6 +81,7 @@ export default function HomeScreen() {
               onPress={() => setBalanceVisible((visible) => !visible)}
               hitSlop={10}
               className="h-9 w-9 items-center justify-center rounded-full"
+              style={{ backgroundColor: "rgba(255,255,255,0.12)" }}
             >
               <Ionicons
                 name={balanceVisible ? "eye-outline" : "eye-off-outline"}
@@ -99,7 +100,7 @@ export default function HomeScreen() {
 
           <Text
             className="mt-1 text-[12px] text-white"
-            style={{ fontFamily: "Manrope-Regular" }}
+            style={{ fontFamily: "Manrope-Regular", opacity: 0.85 }}
           >
             Across all your savings goals
           </Text>
@@ -107,7 +108,7 @@ export default function HomeScreen() {
           <View className="mt-5 flex-row items-center justify-between">
             <Pressable
               accessibilityRole="button"
-              onPress={() => router.push('/create-goal')}
+              onPress={() => router.push("/create-goal")}
               className="flex-row items-center justify-center rounded-[11px] bg-lime px-4 py-2"
             >
               <Ionicons name="add" size={17} color="#153D2E" />
@@ -122,16 +123,15 @@ export default function HomeScreen() {
 
             <Text
               className="text-[11px] text-white"
-              style={{ fontFamily: "Manrope-Medium" }}
+              style={{ fontFamily: "Manrope-Medium", opacity: 0.9 }}
             >
               ✦ Every cedi counts
             </Text>
           </View>
-        </View>
+        </GradientCard>
 
-         <YourGoals />
-         <RecentActivity />
-         
+        <YourGoals />
+        <RecentActivity />
       </ScrollView>
     </SafeAreaView>
   );

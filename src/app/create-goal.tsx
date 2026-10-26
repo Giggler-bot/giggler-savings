@@ -11,7 +11,7 @@ import { SelectionTile } from "@/components/ui/selectionTile";
 import { OptionCard } from "@/components/ui/optionCard";
 import { DateField } from "@/components/ui/dateField";
 
-import { CalendarPicker } from "@/components/ui/CalendarPicker";
+import { CalendarPicker } from "@/components/ui/calendarPicker";
 import { Button } from "@/components/ui/button";
 
 type GoalPurpose =

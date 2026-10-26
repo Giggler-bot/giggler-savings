@@ -36,7 +36,7 @@ export default function FundingDetailsScreen() {
               className="mt-2 text-[12px] text-muted"
               style={{ fontFamily: "Manrope-Medium" }}
             >
-              STEP 1 OF 2
+              STEP 2 OF 2
             </Text>
 
             <Text

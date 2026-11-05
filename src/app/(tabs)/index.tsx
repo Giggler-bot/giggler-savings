@@ -64,7 +64,7 @@ export default function HomeScreen() {
               className="text-[21px] text-ink"
               style={{ fontFamily: "Manrope-Bold" }}
             >
-              Good morning, Ama 👋
+              Good day, Giggler 👋
             </Text>
 
             <Text
@@ -87,7 +87,7 @@ export default function HomeScreen() {
               className="text-base text-forest"
               style={{ fontFamily: "Manrope-Bold" }}
             >
-              A
+              G
             </Text>
           </Pressable>
         </View>

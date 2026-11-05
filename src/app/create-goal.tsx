@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
-import { Pressable, Text, View, ScrollView, Modal } from "react-native";
+import { Alert, Pressable, Text, View, ScrollView, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -30,7 +30,6 @@ const goalPurposes: {
   { label: "Other", value: "other", icon: "apps-outline" },
 ];
 
-
 export default function CreateGoalsScreen() {
   const [selectedPurpose, setSelectedPurpose] = useState<GoalPurpose | null>(
     null,
@@ -48,6 +47,13 @@ export default function CreateGoalsScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [draftDate, setDraftDate] = useState(new Date());
 
+  const formatDateForRoute = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const formatDate = (date: Date) =>
     date.toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -64,6 +70,56 @@ export default function CreateGoalsScreen() {
     setSelectedDate(draftDate);
     setTargetDate(formatDate(draftDate));
     setShowDatePicker(false);
+  };
+
+  const handleContinue = () => {
+    if (!selectedPurpose) {
+      Alert.alert("Missing information", "Please select a savings purpose.");
+      return;
+    }
+
+    if (!goalName.trim()) {
+      Alert.alert("Missing information", "Please enter a goal name.");
+      return;
+    }
+
+    const parsedAmount = Number(targetAmount);
+
+    if (
+      !targetAmount.trim() ||
+      !Number.isFinite(parsedAmount) ||
+      parsedAmount <= 0
+    ) {
+      Alert.alert(
+        "Invalid target amount",
+        "Please enter a target amount greater than zero.",
+      );
+      return;
+    }
+
+    if (!Number.isSafeInteger(Math.round(parsedAmount * 100))) {
+      Alert.alert(
+        "Invalid target amount",
+        "Please enter an amount with no more than two decimal places.",
+      );
+      return;
+    }
+
+    if (!targetDate) {
+      Alert.alert("Missing information", "Please select a target date.");
+      return;
+    }
+
+    router.push({
+      pathname: "/funding-details",
+      params: {
+        purpose: selectedPurpose,
+        goalName: goalName.trim(),
+        targetAmount: String(parsedAmount),
+        targetDate: formatDateForRoute(selectedDate),
+        savingsType,
+      },
+    });
   };
 
   const { width: screenWidth } = useWindowDimensions();
@@ -237,9 +293,7 @@ export default function CreateGoalsScreen() {
         <View className="mt-6">
           <Button
             title="Continue ->"
-            onPress={() => {
-              router.push('/funding-details')
-            }}
+            onPress={handleContinue}
             variant="accent"
             className="w-full rounded-[14px] px-4 py-0"
           />

@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +6,7 @@ type CalendarPickerProps = {
   value: Date;
   onChange: (date: Date) => void;
   minimumDate?: Date;
+  maximumDate?: Date;
 };
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -38,6 +38,7 @@ export function CalendarPicker({
   value,
   onChange,
   minimumDate = new Date(),
+  maximumDate,
 }: CalendarPickerProps) {
   const [visibleMonth, setVisibleMonth] = useState(
     () => new Date(value.getFullYear(), value.getMonth(), 1),
@@ -62,14 +63,16 @@ export function CalendarPicker({
     (visibleMonth.getFullYear() === minimumDate.getFullYear() &&
       visibleMonth.getMonth() > minimumDate.getMonth());
 
+  const canGoToNextMonth =
+    maximumDate === undefined ||
+    visibleMonth.getFullYear() < maximumDate.getFullYear() ||
+    (visibleMonth.getFullYear() === maximumDate.getFullYear() &&
+      visibleMonth.getMonth() < maximumDate.getMonth());
+
   const changeMonth = (amount: number) => {
     setVisibleMonth(
       (current) =>
-        new Date(
-          current.getFullYear(),
-          current.getMonth() + amount,
-          1,
-        ),
+        new Date(current.getFullYear(), current.getMonth() + amount, 1),
     );
   };
 
@@ -101,14 +104,11 @@ export function CalendarPicker({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Next month"
+          disabled={!canGoToNextMonth}
           onPress={() => changeMonth(1)}
           className="h-10 w-10 items-center justify-center rounded-full bg-sage"
         >
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color="#153D2E"
-          />
+          <Ionicons name="chevron-forward" size={20} color={canGoToNextMonth ? "#153D2E" : "#A5B0A7"} />
         </Pressable>
       </View>
 
@@ -145,7 +145,15 @@ export function CalendarPicker({
           );
 
           const isSelected = isSameDay(date, value);
-          const isDisabled = startOfDay(date) < startOfDay(minimumDate);
+
+          const isBeforeMinimumDate =
+            startOfDay(date) < startOfDay(minimumDate);
+
+          const isAfterMaximumDate =
+            maximumDate !== undefined &&
+            startOfDay(date) > startOfDay(maximumDate);
+
+          const isDisabled = isBeforeMinimumDate || isAfterMaximumDate;
 
           return (
             <View
@@ -174,9 +182,7 @@ export function CalendarPicker({
                         : "text-ink"
                   }`}
                   style={{
-                    fontFamily: isSelected
-                      ? "Manrope-Bold"
-                      : "Manrope-Medium",
+                    fontFamily: isSelected ? "Manrope-Bold" : "Manrope-Medium",
                   }}
                 >
                   {day}

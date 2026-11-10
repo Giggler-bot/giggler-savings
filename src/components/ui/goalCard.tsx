@@ -1,6 +1,7 @@
-
 import { Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
+import { GoalName } from "@/components/ui/goalName";
 
 export type Goal = {
   id: string;
@@ -19,8 +20,7 @@ type GoalCardProps = {
   onPress: () => void;
 };
 
-const formatMoney = (amount: number) =>
-  `GH₵${amount.toLocaleString("en-GH")}`;
+const formatMoney = (amount: number) => `GH₵${amount.toLocaleString("en-GH")}`;
 
 export function GoalCard({ goal, onPress }: GoalCardProps) {
   return (
@@ -31,8 +31,9 @@ export function GoalCard({ goal, onPress }: GoalCardProps) {
       className="mb-3"
     >
       <View
-        className="h-[166px] rounded-[16px] bg-white p-3.5"
+        className="rounded-[16px] bg-white p-3.5"
         style={{
+          minHeight: 166,
           borderWidth: 1,
           borderColor: "#E7E9E2",
           shadowColor: "#153D2E",
@@ -47,13 +48,8 @@ export function GoalCard({ goal, onPress }: GoalCardProps) {
             <Ionicons name={goal.icon} size={23} color="#153D2E" />
           </View>
 
-          <View className="ml-3 flex-1">
-            <Text
-              className="text-[15px] text-ink"
-              style={{ fontFamily: "Manrope-Bold" }}
-            >
-              {goal.name}
-            </Text>
+          <View className="ml-3 flex-1" style={{ maxWidth: 0 }}>
+            <GoalName name={goal.name} />
 
             <Text
               className="mt-1 text-[11px] text-muted"

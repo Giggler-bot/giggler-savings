@@ -15,7 +15,7 @@ type GoalFilter = "all" | GoalStatus;
 const goals: Goal[] = [
   {
     id: "laptop",
-    name: "Laptop Fund",
+    name: "Laptop Fund  ",
     type: "Target savings",
     saved: 1860,
     target: 3000,

@@ -1,6 +1,7 @@
-
 import { useEffect, useRef } from "react";
 import { Animated, Pressable, Text, View } from "react-native";
+
+import { GoalName } from "@/components/ui/goalName";
 
 type HomeGoalCardProps = {
   name: string;
@@ -79,12 +80,11 @@ export function HomeGoalCard({
       >
         <View className="flex-row items-start justify-between">
           <View className="flex-1 pr-3">
-            <Text
-              className="text-[15px] text-ink"
-              style={{ fontFamily: "Manrope-Bold" }}
-            >
-              {name}
-            </Text>
+
+            <GoalName 
+              name={name} 
+             
+            />
 
             <Text
               className="mt-1 text-[11px] text-muted"

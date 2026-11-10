@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/button";
@@ -9,12 +9,18 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
+import { DateField } from "@/components/ui/dateField";
+import { CalendarPicker } from "@/components/ui/calendarPicker";
+
+import { GoalName } from "@/components/ui/goalName";
+
 type FundingMethod = "manual" | "automatic";
 type ContributionFrequency = "daily" | "weekly" | "monthly";
 type FundingSource = "momo" | "bank";
 
 type FundingConfiguration = {
   method: FundingMethod;
+  startDate: string;
   automatic: {
     amount: number;
     frequency: ContributionFrequency;
@@ -22,7 +28,62 @@ type FundingConfiguration = {
   } | null;
 };
 
+const formatDisplayDate = (dateString: string) => {
+  const [year, month, day] = dateString.split("-").map(Number);
+
+  const date = new Date(year, month - 1, day);
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const formatDateForRoute = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 export default function FundingDetailsScreen() {
+  const { purpose, goalName, targetAmount, targetDate, savingsType } =
+    useLocalSearchParams<{
+      purpose: string;
+      goalName: string;
+      targetAmount: string;
+      targetDate: string;
+      savingsType: string;
+    }>();
+
+  const parsedTargetAmount = Number(targetAmount);
+
+  const formattedTargetAmount = parsedTargetAmount.toLocaleString("en-GH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const formattedTargetDate = formatDisplayDate(targetDate);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [selectedStartDate, setSelectedStartDate] = useState(today);
+  const [draftStartDate, setDraftStartDate] = useState(today);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+
+  const openStartDatePicker = () => {
+    setDraftStartDate(selectedStartDate);
+    setShowStartDatePicker(true);
+  };
+
+  const handleConfirmStartDate = () => {
+    setSelectedStartDate(draftStartDate);
+    setShowStartDatePicker(false);
+  };
+
   const [fundingMethod, setFundingMethod] =
     useState<FundingMethod>("automatic");
 
@@ -31,8 +92,19 @@ export default function FundingDetailsScreen() {
   const [source, setSource] = useState<FundingSource>("momo");
   const [amountError, setAmountError] = useState("");
 
-  const handleCreateGoal = () => {
+  const handleContinue = () => {
     setAmountError("");
+
+    if (
+      selectedStartDate < today ||
+      selectedStartDate > new Date(`${targetDate}T00:00:00`)
+    ) {
+      Alert.alert(
+        "Invalid start date",
+        "Your start date must be between today and your target date.",
+      );
+      return;
+    }
 
     let configuration: FundingConfiguration;
 
@@ -48,15 +120,18 @@ export default function FundingDetailsScreen() {
         return;
       }
 
-      if (!Number.isSafeInteger(Math.round(parsedAmount * 1000))) {
-        setAmountError("Enter a valid contibution amount.");
+      const decimalPlaces = amount.trim().split(".")[1]?.length ?? 0;
+
+      if (decimalPlaces > 2) {
+        setAmountError("Enter an amount with no more than two decimal places.");
         return;
       }
 
       configuration = {
         method: "automatic",
+        startDate: formatDateForRoute(selectedStartDate),
         automatic: {
-          amount: Math.round(parsedAmount * 1000) / 100,
+          amount: Math.round(parsedAmount * 100) / 100,
           frequency,
           source,
         },
@@ -64,39 +139,28 @@ export default function FundingDetailsScreen() {
     } else {
       configuration = {
         method: "manual",
+        startDate: formatDateForRoute(selectedStartDate),
         automatic: null,
       };
     }
-    // Temporary integration checkpoint.
-    // This does not create a goal or initiate any payment.
-    console.log("Funding configuration prepared:", configuration);
+  
+    router.push({
+      pathname: "/review-plan",
+      params: {
+        purpose,
+        goalName,
+        targetAmount,
+        targetDate,
+        savingsType,
+        startDate: configuration.startDate,
+        fundingMethod: configuration.method,
+        contributionAmount: configuration.automatic?.amount.toString() ?? "",
+        frequency: configuration.automatic?.frequency ?? "",
+        source: configuration.automatic?.source ?? "",
 
-    Alert.alert(
-      "Funding details ready",
-      fundingMethod === "automatic"
-        ? `Your proposed schedule is GH₵${configuration.automatic?.amount.toFixed(2)} per ${
-            frequency === "daily"
-              ? "day"
-              : frequency === "weekly"
-                ? "week"
-                : "month"
-          }, using ${
-            source === "momo" ? "Mobile Money" : "a bank account"
-          }. No payment has been initiated.`
-        : "Manual contributions selected. No payment has been initiated.",
-      [
-        {
-          text: "Continue editing",
-          style: "cancel",
-        },
-        {
-          text: "Got it",
-          onPress: () => {
-            // Goal creation and persistence will be implemented later.
-          },
-        },
-      ],
-    );
+      }
+    })
+   
   };
 
   const selectMethod = (method: FundingMethod) => {
@@ -189,12 +253,7 @@ export default function FundingDetailsScreen() {
               </View>
 
               <View className="flex-1">
-                <Text
-                  className="text-sm font-medium text-muted"
-                  style={{ fontFamily: "Manrope-Medium" }}
-                >
-                  YOUR SAVINGS GOAL
-                </Text>
+               <GoalName name={goalName} className="text-right" />
               </View>
 
               <Ionicons name="checkmark-circle" size={22} color="#26734D" />
@@ -221,7 +280,7 @@ export default function FundingDetailsScreen() {
                   className="mt-1 text-xl font-extrabold text-forest"
                   style={{ fontFamily: "Manrope-ExtraBold" }}
                 >
-                  GH₵10,000.00
+                  {`GH₵${formattedTargetAmount}`}
                 </Text>
               </View>
 
@@ -237,11 +296,25 @@ export default function FundingDetailsScreen() {
                   className="mt-1 text-sm font-bold text-ink"
                   style={{ fontFamily: "Manrope-Bold" }}
                 >
-                  31 Dec 2026
+                  {formattedTargetDate}
                 </Text>
               </View>
             </View>
           </Card>
+
+          {/* Start date selection */}
+          <View className="mt-5">
+            <DateField
+              label="Start date"
+              value={selectedStartDate.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+              placeholder="Select a start date"
+              onPress={openStartDatePicker}
+            />
+          </View>
 
           {/* Funding method */}
           <View className="mt-6">
@@ -264,7 +337,7 @@ export default function FundingDetailsScreen() {
           <Pressable
             accessibilityRole="radio"
             accessibilityState={{ selected: fundingMethod === "manual" }}
-            onPress={() => setFundingMethod("manual")}
+            onPress={() => selectMethod("manual")}
             className={`mt-4 rounded-card border bg-white p-4 ${
               fundingMethod === "manual" ? "border-forest" : "border-border"
             }`}
@@ -307,7 +380,7 @@ export default function FundingDetailsScreen() {
           <Pressable
             accessibilityRole="radio"
             accessibilityState={{ selected: fundingMethod === "automatic" }}
-            onPress={() => setFundingMethod("automatic")}
+            onPress={() => selectMethod("automatic")}
             className={`mt-4 rounded-card border bg-white p-4 ${
               fundingMethod === "automatic" ? "border-forest" : "border-border"
             }`}
@@ -559,7 +632,7 @@ export default function FundingDetailsScreen() {
           {/* Continue action */}
           <Button
             title="Continue"
-            onPress={handleCreateGoal}
+            onPress={handleContinue}
             variant="accent"
             className="mt-6"
           />
@@ -578,6 +651,57 @@ export default function FundingDetailsScreen() {
           </Pressable>
         </ScrollView>
       </View>
+      <Modal
+        visible={showStartDatePicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowStartDatePicker(false)}
+      >
+        <View className="flex-1 justify-center bg-black/40 px-4 py-4">
+          <View className="rounded-3xl bg-ivory p-5">
+            <View className="mb-5 flex-row items-center justify-between">
+              <Text
+                className="text-lg text-ink"
+                style={{ fontFamily: "Manrope-bold" }}
+              >
+                Select Start date
+              </Text>
+
+              <Pressable
+                onPress={() => setShowStartDatePicker(false)}
+                accessibilityRole="button"
+                accessibilityLabel="Close calendar"
+              >
+                <Ionicons name="close" size={24} color="#153D2E" />
+              </Pressable>
+            </View>
+
+            <CalendarPicker
+              value={draftStartDate}
+              minimumDate={today}
+              maximumDate={new Date(`${targetDate}T00:00:00`)}
+              onChange={setDraftStartDate}
+            />
+
+            <View className="mt-5 flex-row gap-3">
+              <View className="flex-1">
+                <Button
+                  title="Cancel"
+                  variant="secondary"
+                  onPress={() => setShowStartDatePicker(false)}
+                />
+              </View>
+              <View className="flex-1">
+                <Button
+                  title="Confirm"
+                  variant="accent"
+                  onPress={handleConfirmStartDate}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

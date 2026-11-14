@@ -130,6 +130,8 @@ export default function ReviewPlanScreen() {
     ? "Automatic contributions"
     : "Manual contributions";
 
+  const fundingMethodIcon = isAutomatic ? "repeat" : "hand-left-outline";
+
   const contributionAmount = formatCurrency(params.contributionAmount);
 
   const frequencyLabel = frequencyLabels[params.frequency] ?? "Not specified";
@@ -220,7 +222,7 @@ export default function ReviewPlanScreen() {
             {/* Goal Name */}
             <View className="mb-4 flex-row items-start justify-between">
               <Text
-                className="mr-3 flex-1 text-[12px] text-muted"
+                className="mr-3 text-[12px] text-muted"
                 style={{ fontFamily: "Manrope-Medium" }}
               >
                 Goal Name
@@ -263,12 +265,21 @@ export default function ReviewPlanScreen() {
                   Funding Plan
                 </Text>
 
-                <Text
-                  className="text-[12px] text-muted"
-                  style={{ fontFamily: "Manrope-Regular" }}
-                >
-                  How you'll build your savings
-                </Text>
+                <View className="flex-row items-center">
+                  <Ionicons
+                    name={fundingMethodIcon}
+                    size={15}
+                    color="#26734D"
+                    style={{ marginRight: 5 }}
+                  />
+
+                  <Text
+                    className="text-[12px] text-forest"
+                    style={{ fontFamily: "Manrope-SemiBold" }}
+                  >
+                    {fundingMethodLabel}
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -283,8 +294,6 @@ export default function ReviewPlanScreen() {
             />
 
             {/* Funding Method */}
-            <DetailRow label="Funding Method" value={fundingMethodLabel} />
-
             {isAutomatic ? (
               <>
                 <DetailRow
@@ -304,6 +313,39 @@ export default function ReviewPlanScreen() {
               <DetailRow label="Savings Starts" value={startDate} />
             )}
           </Card>
+
+          {/* Funding Information Panel */}
+          <View className="mt-4 flex-row items-start rounded-card bg-sage p-4">
+            <View className="mr-3 mt-0.5">
+              <Ionicons
+                name={
+                  isAutomatic ? "shield-checkmark-outline" : "hand-left-outline"
+                }
+                size={21}
+                color="#00865A"
+              />
+            </View>
+
+            <View className="flex-1">
+              <Text
+                className="mb-1 text-[13px] text-ink"
+                style={{ fontFamily: "Manrope-Bold" }}
+              >
+                {isAutomatic
+                  ? "Your savings schedule"
+                  : "You're in control of your savings"}
+              </Text>
+
+              <Text
+                className="text-[12px] leading-5 text-forest"
+                style={{ fontFamily: "Manrope-Regular" }}
+              >
+                {isAutomatic
+                  ? "Your selected contribution amount and frequency will guide your savings plan. Automatic deductions are not enabled yet. A supported payment provider and your authorization will be required before money can be collected."
+                  : "You can add money to your savings goal whenever you choose. Payment processing and deposits will be connected separately."}
+              </Text>
+            </View>
+          </View>
         </ScrollView>
 
         {/* Fixed Bottom Action */}

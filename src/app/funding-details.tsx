@@ -253,7 +253,7 @@ export default function FundingDetailsScreen() {
               </View>
 
               <View className="flex-1">
-               <GoalName name={goalName} className="text-right" />
+               <GoalName name={goalName} className="ml-1" />
               </View>
 
               <Ionicons name="checkmark-circle" size={22} color="#26734D" />

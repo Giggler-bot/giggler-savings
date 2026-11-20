@@ -352,7 +352,19 @@ export default function ReviewPlanScreen() {
         <View className="border-t border-border bg-ivory px-5 py-4">
           <Button
             title="Confirm & Create Goal"
-            onPress={() => {}}
+            onPress={() =>
+              router.push({
+                pathname: "/goal-success",
+                params: {
+                  goalName: params.goalName,
+                  targetAmount: params.targetAmount,
+                  targetDate: params.targetDate,
+                  fundingMethod: params.fundingMethod,
+                  contributionAmount: params.contributionAmount,
+                  frequency: params.frequency,
+                },
+              })
+            }
             variant="accent"
             className="w-full"
           />
